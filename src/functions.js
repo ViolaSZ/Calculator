@@ -21,6 +21,7 @@ class AddCommand{
     }
 
     execute(newResult){
+        console.log('execAdd',newResult,this.numberToAdd);
         return newResult + this.numberToAdd;
     }
 
@@ -35,6 +36,7 @@ class SubCommand{
     }
 
     execute(newResult){
+        console.log('execSub',newResult,this.numberToAdd);
         return newResult - this.numberToSub;
     }
 
@@ -68,34 +70,6 @@ class MultyCommand{
 
     undo(newResult){
         return newResult / this.numberToMulty;
-    }
-}
-
-class Pow2Command{
-    // constructor(numberToPow){
-    //     this.numberToPow = numberToPow;
-    // }
-
-    execute(newResult){
-        return newResult * newResult;
-    }
-
-    undo(newResult){
-        return (newResult ** (1/2)).toFixed(3);
-    }
-}
-
-class Pow3Command{
-    // constructor(numberToPow){
-    //     this.numberToPow = numberToPow;
-    // }
-
-    execute(newResult){
-        return newResult * newResult * newResult;
-    }
-
-    undo(newResult){
-        return (newResult ** (1/3)).toFixed(3);
     }
 }
 
@@ -150,12 +124,12 @@ class ChangeSignCommand{
 }
 
 class PercentCommand{
-    // constructor(numberForPercent){
-    //     this.numberForPercent = numberForPercent;
-    // }
+    constructor(numberForPercent){
+        this.numberForPercent = numberForPercent;
+    }
 
     execute(newResult){
-        return newResult / 100;
+        return newResult / 100 * this.numberForPercent;
     }
 
     undo(newResult){
@@ -192,49 +166,6 @@ class DivideOnXCommand{
 
     undo(newResult){
         return ((1 / newResult) ** (-1)).toFixed(3);
-    }
-}
-
-class SqrtCommand{
-    constructor(inputNumber){
-        this.inputNumber = inputNumber;
-    }
-
-    execute(newResult){
-        var x = 0;
-        while(x*x < newResult){
-            x += 0.00001;
-        }
-        return x.toFixed(3);
-    }
-
-    undo(newResult){
-        return (newResult * newResult).toFixed(3);
-    }
-}
-
-class Sqrt3Command{
-    constructor(inputNumber){
-        this.inputNumber = inputNumber;
-    }
-
-    execute(newResult){
-        if (newResult > 0){
-           var x = 0;
-            while(x*x*x < newResult){
-                x += 0.00001;
-            }
-            return x.toFixed(3); 
-        } else{
-            while(x*x*x < newResult){
-                x -= 0.00001;
-            }
-            return x.toFixed(3); 
-        } 
-    }
-
-    undo(newResult){
-        return (newResult * newResult * newResult).toFixed(3);
     }
 }
 
@@ -281,8 +212,13 @@ function realization(event){
                 output.innerHTML = leftOperand;
             }
         } else{
-            leftOperand += event.target.textContent;
-            output.innerHTML = leftOperand;
+            if (!lastOperation){
+                leftOperand += event.target.textContent;
+                output.innerHTML = leftOperand;
+            } else{
+                rightOperand += event.target.textContent;
+                output.innerHTML = rightOperand;
+            }
         }
     }
 
@@ -292,123 +228,126 @@ function realization(event){
         leftOperand = output.innerHTML;  
     }
 
-    if (event.target.classList.contains('operation')){
-        dotCheck = false;
-        if (event.target.value=='MR'){
-            output.innerHTML = memory.value;
-            leftOperand = memory.value;
-        } else{
-            if (event.target.value=='MC'){
+    if (event.target.classList.contains('memory')){
+        switch (event.target.value){
+            case 'MR':
+                output.innerHTML = memory.value;
+                leftOperand = memory.value;
+                break;
+            case 'MC':
                 leftOperand = '';
-                calc.value = 0;
                 if (!memory.value) return;
                 memory.value = 0;
                 output.innerHTML = '';
-                calc.value = 0;
-            } else{
-                if (event.target.value=='M-'){
-                    calc.value = 0;
-                    memory.executeCommand(new SubCommand(+leftOperand));
-                    output.innerHTML = '';
-                    leftOperand = ''; 
-                } else{
-                    if (event.target.value=='M+'){
-                        calc.value = 0;
-                        memory.executeCommand(new AddCommand(+leftOperand));
-                        output.innerHTML = '';
-                        leftOperand = ''; 
-                    } else{
-                        if (event.target.value == 'C'){
-                            calc.value = 0;
-                            calc.memory = 0;
-                            leftOperand = '';
-                            rightOperand = '';
-                            output.innerHTML = '';
-                            input.innerHTML = '';
-                        } else{
-                            if (event.target.value == '='){
-                                if (!rightOperand){
-                                    calc.executeCommand(new AddCommand(+leftOperand));
-                                    output.innerHTML = calc.value;
-                                } else{
-                                    calc.value = mathRealization();
-                                    output.innerHTML = calc.value;
-                                    input.innerHTML = '';
-                                }
-                            } else{
-                                if (!rightOperand){
-                                    calc.executeCommand(new AddCommand(+leftOperand));
-                                } else {
-                                    leftOperand = mathRealization(lastOperation);
-                                    output.innerHTML = calc.value;
-                                    input.innerHTML = '';
-                                }
-                                //clearOperation(event.target.value);
-                                if (!leftOperand) {
-                                leftOperand = output.innerHTML;
-                                output.innerHTML = '';
-                                } else {
-                                    rightOperand = leftOperand;
-                                    output.innerHTML = '';
-                                }
-                                leftOperand += ' ' + event.target.value;
-                                rightOperand = leftOperand;
-                                input.innerHTML = leftOperand;
-                                leftOperand = '';
-                                lastOperation = event.target.value;
-                                dotCheck = false;
-                            }
-                        }
-                    }
-                }
-            }
+                break;
+            case 'M+':
+                memory.executeCommand(new AddCommand(+leftOperand));
+                output.innerHTML = '';
+                leftOperand = ''; 
+                break;
+            case 'M-':
+                memory.executeCommand(new SubCommand(+leftOperand));
+                output.innerHTML = '';
+                leftOperand = ''; 
+                break;
         }
-    }   
+    }
+
+    if (event.target.classList.contains('once')){
+        calc.value = +leftOperand;
+        lastOperation = event.target.value;
+        calc.value = mathRealization();
+        input.innerHTML = calc.value;
+        output.innerHTML = '';
+        leftOperand = calc.value;
+    }
+
+    if (event.target.classList.contains('clear')){
+        calc.value = 0;
+        calc.memory = 0;
+        leftOperand = '';
+        rightOperand = '';
+        output.innerHTML = '';
+        input.innerHTML = '';
+    }
+
+    if (event.target.classList.contains('operation')){
+        dotCheck = false;
+        if (event.target.value == '='){
+            if (!rightOperand){
+                calc.value = +leftOperand;
+                output.innerHTML = calc.value;
+            } else{
+                calc.value = mathRealization();
+                output.innerHTML = calc.value;
+                input.innerHTML = '';
+            }
+        } else{
+            if (!rightOperand){
+                calc.value = +leftOperand;
+            } else {
+                leftOperand = mathRealization();
+                output.innerHTML = calc.value;
+                input.innerHTML = '';
+                leftOperand = '';
+            }
+            if (!leftOperand) {
+                rightOperand = output.innerHTML.trim();
+                output.innerHTML = '';
+            } 
+            output.innerHTML = '';
+            input.innerHTML = leftOperand + ' ' + event.target.value;
+            rightOperand = '';
+            lastOperation = event.target.value;
+            dotCheck = false;
+        }
+    }
 }
 
 function mathRealization(){
     switch(lastOperation){
         case '+':
-            calc.executeCommand(new AddCommand(+leftOperand)); 
+            calc.executeCommand(new AddCommand(+rightOperand)); 
             break;
         case '-':
-            calc.executeCommand(new SubCommand(+leftOperand)); 
+            calc.executeCommand(new SubCommand(+rightOperand)); 
             break;
         case '*':
-            calc.executeCommand(new MultyCommand(+leftOperand)); 
+            calc.executeCommand(new MultyCommand(+rightOperand)); 
             break;
         case '/':
-            calc.executeCommand(new DivCommand(+leftOperand)); 
+            calc.executeCommand(new DivCommand(+rightOperand)); 
             break;
         case '%':
-            calc.executeCommand(new PercentCommand(+leftOperand)); 
+            calc.executeCommand(new PercentCommand(+rightOperand)); 
             break;            
         case '^2':
-            calc.executeCommand(new Pow2Command(+leftOperand)); 
+            calc.executeCommand(new PowYCommand(2)); 
             break;
         case '^3':
-            calc.executeCommand(new Pow3Command(+leftOperand)); 
+            calc.executeCommand(new PowYCommand(3)); 
             break;
         case 'sqrt':
-            calc.executeCommand(new SqrtCommand(+leftOperand)); 
+            calc.executeCommand(new SqrtYCommand(2)); 
             break;
         case 'sqrt3':
-            calc.executeCommand(new Sqrt3Command(+leftOperand)); 
+            calc.executeCommand(new SqrtYCommand(3)); 
             break;
         case 'sqrty':
-            calc.executeCommand(new SqrtYCommand(+leftOperand)); 
+            calc.executeCommand(new SqrtYCommand(+rightOperand)); 
             break;             
         case '^y':
-            calc.executeCommand(new PowYCommand(+leftOperand)); 
+            calc.executeCommand(new PowYCommand(+rightOperand)); 
             break;   
         case '1/x':
-            calc.executeCommand(new DivideOnXCommand(+leftOperand)); 
+            calc.executeCommand(new DivideOnXCommand(+rightOperand)); 
             break;  
         case 'x!':
-            calc.executeCommand(new FactorialCommand(+leftOperand)); 
+            calc.executeCommand(new FactorialCommand(+rightOperand)); 
             break;
         case '10^x':
-            calc.executeCommand(new TenPowXCommand(+leftOperand)); 
+            calc.value = 10;
+            calc.executeCommand(new PowYCommand(+leftOperand)); 
             break;
     }
     result = calc.value;
