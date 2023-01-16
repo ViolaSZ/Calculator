@@ -5,7 +5,7 @@ TASK:
   Create calculator using JS, implement different math operations whithou using Math.
 
 HOW OPEN CALCULATOR:
-  Open file 'view.html' in browser.
+  Run 'npm run serve' in console, then open link in 'Loopback';
 
 FEATURES OF THE APP:
   - light and dark theme
