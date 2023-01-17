@@ -1,16 +1,15 @@
-const path = require('path')
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
-        main: path.resolve(__dirname, './src/realization.js'),
+        main: './src/realization.js',
     },
 
     output: {
-        path: path.resolve(__dirname, './dist'),
+        path: path.join(__dirname, './dist'),
         filename: '[name].bundle.js',
-    },
-    resolve: {
-        extensions: ['.js', '.css', '.json', '.html'],
     },
     devServer: {
         static: {
@@ -18,6 +17,19 @@ module.exports = {
         },
         compress: true,
         port: 8080,
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+          template: 'src/index.html'
+        })
+    ],
+    module: {
+        rules: [
+          {
+            test: /\.css$/i,
+            use: ['style-loader', 'css-loader'],
+          },
+        ],
     },
     mode: 'development'
 }

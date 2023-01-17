@@ -13,6 +13,7 @@ import {
     DivideOnXCommand,
     ChangeSignCommand
 } from './functions.js';
+import './styles.css';
 
 let leftOperand = '';
 let rightOperand = '';
@@ -29,11 +30,6 @@ const input = document.getElementById('input');
 
 function realization(event){
     if (event.target.classList.contains('theme')){
-        // document.querySelector('.equals').classList.toggle('light'); 
-        // document.querySelector('.number').classList.toggle('light');
-        // document.querySelector('.button').classList.toggle('light');
-        // document.querySelector('.calcBody').classList.toggle('light');
-        // document.querySelector('.output').classList.toggle('light');
         changeTheme();
     }
 
@@ -121,6 +117,8 @@ function realization(event){
         } else{
             if (equalCheck){
                 leftOperand = output.innerHTML;
+                rightOperand = '';
+                calc.value = +leftOperand;
             }
             if (!rightOperand){
                 calc.value = +leftOperand;
@@ -130,6 +128,7 @@ function realization(event){
                 input.innerHTML = '';
                 if (!equalCheck)
                     leftOperand = '';
+                leftOperand = calc.value;
             }
             if (!leftOperand) {
                 rightOperand = output.innerHTML.trim();
@@ -141,7 +140,7 @@ function realization(event){
             lastOperation = event.target.value;
             dotCheck = false;
             equalCheck = false;
-        }
+        } 
     }
 }
 
